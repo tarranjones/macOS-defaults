@@ -18,6 +18,7 @@ macOS-defaults('write','domain_name', 'key', 'value', function(stdout){
 macOS-defaults('writeSync', 'domain_name', 'key', 'value', function(stdout){
   console.log(stdout)
 })
+```
 
 
 ## todo
