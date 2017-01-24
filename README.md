@@ -20,7 +20,6 @@ macOS-defaults('writeSync', 'domain_name', 'key', 'value', function(stdout){
 })
 ```
 
-
 ## todo
 
 - handle options with nopt
