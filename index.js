@@ -13,6 +13,7 @@ const abbrev = require('abbrev')
 const fs = require('fs');
 const exec = require('child_process').exec;
 const execSync= require('child_process').execSync;
+const flatten = require('flatten');
 
 const macOSdefault = function (command) {
 
@@ -23,36 +24,61 @@ const macOSdefault = function (command) {
   this[ args.shift() ].apply(this, args);
 }
 macOSdefault.commands = {}
+macOSdefault.debug = false;
 
 var defaultsAsync = function(){
+
   var args = Array.prototype.slice.call(arguments, 0)
   var cb = defaultCb
+
+  if (args.length === 1 && Array.isArray(args[0])) {
+    args = args[0]
+  }
+
   if (typeof args[args.length - 1] === 'function') {
     cb = args.pop()
   }
-  exec('defaults '+ args.join(' '), function(error, stdout, stderr) {
 
-    if (error) {
-      console.error(error);
-      return;
-    }
-    if(stdout){
-      cb.call(null, stdout);
-    }
-    if(stderr){
-      console.log(stderr);
-    }
-  });
+  var command  = 'defaults '+ flatten(args).join(' ');
+
+  if(macOSdefault.debug){
+    console.log(command)
+  } else {
+      exec(command, function(error, stdout, stderr) {
+
+      if (error) {
+        console.error(error);
+        return;
+      }
+      if(stdout){
+        cb.call(null, stdout);
+      }
+      if(stderr){
+        console.log(stderr);
+      }
+    });
+  }
 }
 
 var defaultsSync = function(){
   var args = Array.prototype.slice.call(arguments, 0)
   var cb = defaultCb
+
+  if (args.length === 1 && Array.isArray(args[0])) {
+    args = args[0]
+  }
+
   if (typeof args[args.length - 1] === 'function') {
     cb = args.pop()
   }
-  var stdout = execSync('defaults '+ args.join(' '));
-  cb(stdout);
+  var command  = 'defaults '+ flatten(args).join(' ');
+  if(macOSdefault.debug){
+    console.log(command)
+  } else {
+    var stdout = execSync(command);
+    cb(stdout);
+  }
+
 }
 
 function defaultsObj(obj){

@@ -27,8 +27,6 @@ macOS-defaults('writeSync', 'domain_name', 'key', 'value', function(stdout){
 
 
 
-
-
 ## resources
 
 https://www.freebsd.org/cgi/man.cgi?query=defaults&apropos=0&sektion=0&manpath=FreeBSD+11.0-RELEASE+and+Ports&arch=default&format=html

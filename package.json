@@ -39,5 +39,8 @@
   "bugs": {
     "url": "https://github.com/tarranjones/macOS-defaults/issues"
   },
-  "homepage": "https://github.com/tarranjones/macOS-defaults#readme"
+  "homepage": "https://github.com/tarranjones/macOS-defaults#readme",
+  "dependencies": {
+    "flatten": "^1.0.2"
+  }
 }
