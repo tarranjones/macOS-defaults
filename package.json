@@ -41,6 +41,7 @@
   },
   "homepage": "https://github.com/tarranjones/macOS-defaults#readme",
   "dependencies": {
+    "abbrev": "^1.0.9",
     "flatten": "^1.0.2"
   }
 }

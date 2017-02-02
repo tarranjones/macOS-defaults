@@ -149,7 +149,7 @@ var fullList = cmdList.concat(aliasNames)
 
 var abbrevs = abbrev(fullList);
 
-var abbrevsArray = fullList;//Object.keys(abbrevs)
+var abbrevsArray = Object.keys(abbrevs)
 
 abbrevsArray.forEach(function addCommand (c) {
 
