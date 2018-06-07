@@ -1,33 +1,31 @@
 # macOS-defaults
 
-##Usage
+## Usage
 
-```
+```js
 const macOSDefaults = require('macOS-defaults');
 
-macOS-defaults.write('domain_name', 'key', 'value', function(stdout){
-  console.log(stdout)
-})
-macOS-defaults.writeSync('domain_name', 'key', 'value', function(stdout){
-  console.log(stdout)
-})
+macOSDefaults.write('domain_name', 'key', 'value', (stdout) => {
+  console.log(stdout);
+});
+macOSDefaults.writeSync('domain_name', 'key', 'value', (stdout) => {
+  console.log(stdout);
+});
 
-macOS-defaults('write','domain_name', 'key', 'value', function(stdout){
-  console.log(stdout)
-})
-macOS-defaults('writeSync', 'domain_name', 'key', 'value', function(stdout){
-  console.log(stdout)
-})
+macOSDefaults('write', 'domain_name', 'key', 'value', (stdout) => {
+  console.log(stdout);
+});
+macOSDefaults('writeSync', 'domain_name', 'key', 'value', (stdout) => {
+  console.log(stdout);
+});
 ```
 
-## todo
+## To-do
 
 - handle options with nopt
 - handle multiple input types (obj, array, json?) and convert to command sting
 
-
-
-## resources
+## Resources
 
 https://www.freebsd.org/cgi/man.cgi?query=defaults&apropos=0&sektion=0&manpath=FreeBSD+11.0-RELEASE+and+Ports&arch=default&format=html
 http://man.cx/defaults(1)
@@ -249,6 +247,4 @@ Syntax:
   -array-add <value1> <value2> ...
   -dict <key1> <value1> <key2> <value2> ...
   -dict-add <key1> <value1> ...
-
-
 ```

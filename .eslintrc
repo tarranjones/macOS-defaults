@@ -1,0 +1,18 @@
+{
+  "extends": "eslint:recommended",
+  "parserOptions": {
+    "ecmaVersion": 6
+  },
+  "env": {
+    "node": true,
+  },
+  "rules": {
+    "semi": [2, "always"],
+    "indent": ["error", 2, {"outerIIFEBody": 0}],
+    "object-property-newline": 0,
+    "one-var": 0,
+    "no-var": 2,
+    "prefer-const": 2,
+    "no-extra-semi": 2
+  }
+}
