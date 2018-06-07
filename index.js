@@ -1,3 +1,4 @@
+/* eslint-disable no-console */
 // https://developer.apple.com/legacy/library/documentation/Darwin/Reference/ManPages/man1/defaults.1.html
 
 // defaults [-currentHost | -host hostname] write domain { 'plist' | key 'value' }
@@ -8,105 +9,94 @@
 //  defaults [-currentHost | -host hostname] { domains | find word | help }
 
 'use strict';
-const path = require('path')
-const abbrev = require('abbrev')
-const fs = require('fs');
-const exec = require('child_process').exec;
-const execSync= require('child_process').execSync;
+const path = require('path');
+const abbrev = require('abbrev');
+const {exec} = require('child_process');
+const {execSync}= require('child_process');
 const flatten = require('flatten');
 
-const macOSdefault = function (command) {
-
-  var args = Array.prototype.slice.call(arguments, 0)
+const macOSdefault = function (...args) {
   if (args.length === 1 && Array.isArray(args[0])) {
-    args = args[0]
+    args = args[0];
   }
-  this[ args.shift() ].apply(this, args);
-}
-macOSdefault.commands = {}
+  this[args.shift()].apply(this, args);
+};
+macOSdefault.commands = {};
 macOSdefault.debug = false;
 
-var defaultsAsync = function(){
-
-  var args = Array.prototype.slice.call(arguments, 0)
-  var cb = defaultCb
-
+const defaultsAsync = function (...args) {
   if (args.length === 1 && Array.isArray(args[0])) {
-    args = args[0]
+    args = args[0];
   }
 
-  if (typeof args[args.length - 1] === 'function') {
-    cb = args.pop()
-  }
+  const cb = typeof args[args.length - 1] === 'function'
+    ? args.pop()
+    : defaultCb;
 
-  var command  = 'defaults '+ flatten(args).join(' ');
+  const command = 'defaults '+ flatten(args).join(' ');
 
-  if(macOSdefault.debug){
-    console.log(command)
+  if (macOSdefault.debug) {
+    console.log(command);
   } else {
-      exec(command, function(error, stdout, stderr) {
-
+    exec(command, function(error, stdout, stderr) {
       if (error) {
         console.error(error);
         return;
       }
-      if(stdout){
+      if (stdout) {
         cb.call(null, stdout);
       }
-      if(stderr){
+      if (stderr) {
         console.log(stderr);
       }
     });
   }
-}
+};
 
-var defaultsSync = function(){
-  var args = Array.prototype.slice.call(arguments, 0)
-  var cb = defaultCb
+const defaultsSync = function (...args) {
+  let cb = defaultCb;
 
   if (args.length === 1 && Array.isArray(args[0])) {
-    args = args[0]
+    args = args[0];
   }
 
   if (typeof args[args.length - 1] === 'function') {
-    cb = args.pop()
+    cb = args.pop();
   }
-  var command  = 'defaults '+ flatten(args).join(' ');
-  if(macOSdefault.debug){
-    console.log(command)
+  const command  = 'defaults '+ flatten(args).join(' ');
+  if (macOSdefault.debug){
+    console.log(command);
   } else {
-    var stdout = execSync(command);
+    const stdout = execSync(command);
     cb(stdout);
   }
+};
 
-}
-
-function defaultsObj(obj){
-
+function defaultsObj (obj) { // eslint-disable-line no-unused-vars
   // todo
-  var optionsArr = [];
+  const optionsArr = [];
 
-  if(obj.hasOwnProperty('host')){
-    optinosArr.push('-'+prop, obj[prop]);
-  } else if(obj.hasOwnProperty('currentHost')){
-    optinosArr.push('-'+prop);
+  if (obj.hasOwnProperty('host')) {
+    const prop = 'host';
+    optionsArr.push('-' + prop, obj[prop]);
+  } else if (obj.hasOwnProperty('currentHost')) {
+    const prop = 'currentHost';
+    optionsArr.push('-' + prop);
   }
 
-  ['command', 'domain', 'plist', 'key', 'value', 'old_key', 'new_key'].forEach(function(prop){
-
-    if(obj.hasOwnProperty(prop)){
-      optinosArr.push(obj[prop]);
+  ['command', 'domain', 'plist', 'key', 'value', 'old_key', 'new_key'].forEach((prop) => {
+    if (obj.hasOwnProperty(prop)) {
+      optionsArr.push(obj[prop]);
     }
   });
-  return optinosArr;
+  return optionsArr;
 }
 
-
-var shorthands = {
+const shorthands = {
   'hlp': 'help',
   'rt': 'read-type',
-}
-var affordances = {
+};
+const affordances = {
   'get': 'read',
   'get-type': 'read-type',
   'set': 'write',
@@ -114,11 +104,10 @@ var affordances = {
   'unlink': 'delete',
   'remove': 'delete',
   'rm': 'delete',
-}
-var extend = Object.assign || require('util')._extend
-var aliases = extend(extend({}, shorthands), affordances)
+};
+const aliases = Object.assign({}, shorthands, affordances);
 // these are filenames in .
-var cmdList = [
+const cmdList = [
   'read',
   'read-type',
   'write',
@@ -139,111 +128,100 @@ var cmdList = [
   'import-sync',
   'export',
   'export-sync'
-]
+];
 
-var commandCache = {}
-
-var aliasNames = Object.keys(aliases)
-
-var fullList = cmdList.concat(aliasNames)
-
-var abbrevs = abbrev(fullList);
-
-var abbrevsArray = Object.keys(abbrevs)
+const commandCache = {};
+const aliasNames = Object.keys(aliases);
+const fullList = cmdList.concat(aliasNames);
+const abbrevs = abbrev(fullList);
+const abbrevsArray = Object.keys(abbrevs);
 
 abbrevsArray.forEach(function addCommand (c) {
+  Object.defineProperty(macOSdefault.commands, c, {get () {
+    const method = deref(c);
 
-  Object.defineProperty(macOSdefault.commands, c, { get: function () {
+    if (commandCache[method]) {
+      return commandCache[method];
+    }
 
-    var method = deref(c)
-
-    if (commandCache[method]) return commandCache[method]
-
-    var cmd = method;
-    var call = defaultsAsync;
-
-    if(method.endsWith('-sync')){
-      cmd = method.substring(0,method.length-5);
+    let cmd = method;
+    let call = defaultsAsync;
+    if (method.endsWith('-sync')) {
+      cmd = method.substring(0, method.length - 5);
       call = defaultsSync;
     }
 
     try {
-
-      var module = require(path.join(__dirname, 'lib', cmd + '.js'))
-      Object.keys(module).forEach(function (k) {
-
-        commandCache[k] = function () {
-          var args = Array.prototype.slice.call(arguments, 0)
+      const module = require(path.join(__dirname, 'lib', cmd + '.js'));
+      Object.entries(module).forEach(function ([k, method]) {
+        commandCache[k] = function (...args) {
           if (typeof args[args.length - 1] !== 'function') {
-            args.push(defaultCb)
+            args.push(defaultCb);
           }
-          if (args.length === 1) args.unshift([])
+          if (args.length === 1) {
+            args.unshift([]);
+          }
+          method.apply(macOSdefault, args);
+        };
+      });
+    } catch (e) {} // eslint-disable-line no-empty
 
-          module[k].apply(macOSdefault, args)
-        }
-      })
+    if (commandCache[method]) {
+      return commandCache[method];
+    }
 
-    } catch(e){}
-
-    if (commandCache[method]) return commandCache[method]
-
-    commandCache[ method ] = function () {
-      var args = Array.prototype.slice.call(arguments, 0)
+    commandCache[method] = function (...args) {
       if (typeof args[args.length - 1] !== 'function') {
-        args.push(defaultCb)
+        args.push(defaultCb);
       }
       if (args.length === 1){
-        args.unshift([cmd])
+        args.unshift([cmd]);
       } else {
-        args.unshift(cmd)
+        args.unshift(cmd);
       }
       call.apply(macOSdefault, args);
-    }
+    };
 
-    return commandCache[ method ]
-  }, enumerable: false, configurable: true })
-
+    return commandCache[method];
+  }, enumerable: false, configurable: true});
 
   // make css-case commands callable via camelCase as well
-  if (c.match(/\-([a-z])/)) {
-    addCommand(c.replace(/\-([a-z])/g, function (a, b) {
-      return b.toUpperCase()
-    }))
+  if (c.match(/-([a-z])/)) {
+    addCommand(c.replace(/-([a-z])/g, (a, b) => {
+      return b.toUpperCase();
+    }));
   }
-})
+});
 
 Object.getOwnPropertyNames(macOSdefault.commands).forEach(function (cmd) {
-
-  Object.defineProperty(macOSdefault, cmd, { get: function () {
-    return function () {
-      var args = Array.prototype.slice.call(arguments, 0)
-      var cb = defaultCb
-
+  Object.defineProperty(macOSdefault, cmd, {get () {
+    return function (...args) {
       if (args.length === 1 && Array.isArray(args[0])) {
-        args = args[0]
+        args = args[0];
       }
-
-      if (typeof args[args.length - 1] === 'function') {
-        cb = args.pop()
-      }
-      macOSdefault.commands[cmd](args, cb)
-    }
-  }, enumerable: false, configurable: true })
-})
+      const cb = typeof args[args.length - 1] === 'function'
+        ? args.pop()
+        : defaultCb;
+      macOSdefault.commands[cmd](args, cb);
+    };
+  }, enumerable: false, configurable: true});
+});
 module.exports = macOSdefault;
 
-function deref(c) {
-  if (!c) return ''
+function deref (c) {
+  if (!c) {return '';}
   if (c.match(/[A-Z]/)) {
-    c = c.replace(/([A-Z])/g, function (m) {
-      return '-' + m.toLowerCase()
-    })
+    c = c.replace(/([A-Z])/g, (m) => {
+      return '-' + m.toLowerCase();
+    });
   }
-  var a = abbrevs[c]
-  if (aliases[a]) a = aliases[a]
-  return a
+  let a = abbrevs[c];
+  if (aliases[a]) {
+    a = aliases[a];
+  }
+  return a;
 }
 
-function defaultCb(stdout) {
+function defaultCb (stdout) {
   console.log(`stdout: ${stdout}`);
-};
+}
