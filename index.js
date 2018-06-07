@@ -38,7 +38,7 @@ const defaultsAsync = function (...args) {
   if (macOSdefault.debug) {
     console.log(command);
   } else {
-    exec(command, function(error, stdout, stderr) {
+    exec(command, (error, stdout, stderr) => {
       if (error) {
         console.error(error);
         return;
@@ -54,15 +54,14 @@ const defaultsAsync = function (...args) {
 };
 
 const defaultsSync = function (...args) {
-  let cb = defaultCb;
-
   if (args.length === 1 && Array.isArray(args[0])) {
     args = args[0];
   }
 
-  if (typeof args[args.length - 1] === 'function') {
-    cb = args.pop();
-  }
+  const cb = typeof args[args.length - 1] === 'function'
+    ? args.pop()
+    : defaultCb;
+
   const command  = 'defaults '+ flatten(args).join(' ');
   if (macOSdefault.debug){
     console.log(command);
