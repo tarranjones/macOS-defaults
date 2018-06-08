@@ -3,12 +3,15 @@
   "version": "1.0.1",
   "description": "access the macOS/OS X/MacOS X user defaults system",
   "author": "Tarran Jones <tarrandavidjones@gmail.com> (http://tarranjones.com)",
-  "contributors": [],
+  "contributors": ["Brett Zamir <brettz9@yahoo.com> (http://brett-zamir.me)"],
   "license": "MIT",
   "main": "index.js",
   "scripts": {
+    "jsdoc": "jsdoc --private --pedantic --configure jsdoc.conf.json . README.md package.json",
     "eslint": "eslint .",
-    "test": "ava"
+    "test": "ava",
+    "test-main": "ava test/test.js",
+    "test-parser": "ava test/parser.js"
   },
   "repository": {
     "type": "git",
@@ -43,10 +46,10 @@
   },
   "homepage": "https://github.com/tarranjones/macOS-defaults#readme",
   "dependencies": {
-    "abbrev": "^1.0.9",
-    "flatten": "^1.0.2"
+    "get-stream": "^3.0.0"
   },
   "devDependencies": {
-    "ava": "^0.25.0"
+    "ava": "^0.25.0",
+    "jsdoc": "^3.5.5"
   }
 }

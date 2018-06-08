@@ -1,35 +1,229 @@
 # macOS-defaults
 
-## Usage
+## Installation
 
-```js
-const macOSDefaults = require('macOS-defaults');
-
-macOSDefaults.write('domain_name', 'key', 'value', (stdout) => {
-  console.log(stdout);
-});
-macOSDefaults.writeSync('domain_name', 'key', 'value', (stdout) => {
-  console.log(stdout);
-});
-
-macOSDefaults('write', 'domain_name', 'key', 'value', (stdout) => {
-  console.log(stdout);
-});
-macOSDefaults('writeSync', 'domain_name', 'key', 'value', (stdout) => {
-  console.log(stdout);
-});
+```
+npm i macos-defaults
 ```
 
-## To-do
+## `MacOSDefaults` usage
 
-- handle options with nopt
-- handle multiple input types (obj, array, json?) and convert to command sting
+All methods are asynchronous by default, returning a `Promise`. However,
+with a `sync` property passed to the `MacOSDefaults` constructor, they
+will return the results synchronously.
+
+The methods of the `MacOSDefaults` class accept either a single object
+argument signature or an extended form.
+
+For more on the specifics, see the [API docs](https://rawgit.com/tarranjones/macOS-defaults/master/docs/jsdoc/macos-defaults/1.0.1/module-MacOSDefaults-MacOSDefaults.html).
+
+### read (synchronous)
+
+```js
+const {MacOSDefaults} = require('macOS-defaults');
+const mod = new MacOSDefaults({sync: true});
+
+const arrayOfPaths = mod.read('com.apple.finder', 'GoToFieldHistory');
+// OR:
+const arrayOfPaths = mod.read({domain: 'com.apple.finder', key: 'GoToFieldHistory'});
+
+console.log(arrayOfPaths);
+```
+
+### read (asynchronous)
+
+```js
+(async () => {
+
+const {MacOSDefaults} = require('macOS-defaults');
+const mod = new MacOSDefaults();
+
+const arrayOfPaths = await mod.read('com.apple.finder', 'GoToFieldHistory');
+// OR:
+const arrayOfPaths = await mod.read({domain: 'com.apple.finder', key: 'GoToFieldHistory'});
+
+console.log(arrayOfPaths);
+
+})();
+```
+
+### write
+
+```js
+const mod = new MacOSDefaults();
+
+// 1. WHOLE FILE (STRING PLIST)
+
+// Multiple arguments
+await mod.write('com.example.subdomain', '{a = 1; b = 2;}');
+// Single object
+await mod.write({domain: 'com.example.subdomain', plist: '{a = 1; b = 2;}'});
+
+// 2. WHOLE FILE (OBJECT PLIST)
+
+// Multiple arguments
+await mod.write('com.example.subdomain', {value: {a: '1'}});
+// Single object
+await mod.write({domain: 'com.example.subdomain', value: {a: '1'}});
+
+// 3. KEY-VALUE (ARRAY-BASED)
+// type is optional for `string` type but required for others such
+//   as `array-add`, `dict`, etc.
+// Multiple arguments
+await mod.write('com.example.subdomain', ['a', ['string', '1']]);
+// Single object
+await mod.write({domain: 'com.example.subdomain', plist: ['a', ['string', '1']]});
+
+// Simplified multiple arguments (for string only)
+await mod.write('com.example.subdomain', ['a', '1']);
+// Simplified single object (for string only)
+await mod.write({domain: 'com.example.subdomain', plist: ['a', '1']});
+
+// 4. KEY-VALUE (OBJECT-BASED)
+// Multiple arguments
+await mod.write('com.example.subdomain', {key: 'a', value: '1', type: 'string'});
+// Single object
+await mod.write({domain: 'com.example.subdomain', key: 'a', value: '1', type: 'string'});
+```
+
+### `readType` / `read-type`
+
+Returns the type, e.g., "dictionary", "string", etc.
+
+```js
+// Multiple arguments
+await mod.readType('com.apple.finder', 'GoToFieldHistory'); // "array"
+// Single object
+await mod.readType({domain: 'com.apple.finder', key: 'GoToFieldHistory'}); // "array"
+```
+
+### `rename`
+```js
+// Multiple arguments
+await mod.rename('com.example.subdomain', 'oldKey', 'newKey');
+// Single object
+await mod.rename({domain: 'com.example.subdomain', oldKey: 'oldKey', newKey: 'newKey'});
+```
+
+### `delete`
+```js
+// Multiple arguments
+await mod.delete('com.example.subdomain', 'keyToDelete');
+// Single object
+await mod.delete({domain: 'com.example.subdomain', key: 'keyToDelete'});
+```
+
+### `domains`
+```js
+const domainsArray = await mod.domains();
+```
+
+### `find`
+```js
+// Multiple arguments
+await mod.find('wordToFind');
+// Single object
+await mod.find({word: 'wordToFind'});
+```
+
+### `help`
+```js
+const helpResultsString = await mod.help();
+```
+
+### `import`
+
+For the plist argument, may also accept a string path, "-", a Node
+`stream.Readable`, or an object with an `input` set to a string
+value (to treat as `stdin`).
+
+```js
+// Multiple arguments
+await mod.import('com.example.sub1', 'path/to/plist');
+// Single object
+await mod.import({domain: 'com.example.sub1', plist: 'path/to/plist'});
+```
+
+### `export`
+
+For the plist argument, may also accept a string path or "-".
+
+```js
+// Multiple arguments
+const resultXML = await mod.export('com.apple.finder', '-');
+// Single object
+const resultXML = await mod.export({domain: 'com.apple.finder', plist: '-'});
+```
+
+## Other exports within `MacOSDefaults`
+
+### `jsToPropertyListXML`
+
+Builds a property list XML string.
+
+See [the API](https://rawgit.com/tarranjones/macOS-defaults/master/docs/jsdoc/macos-defaults/1.0.1/module-MacOSDefaults.html#.jsToPropertyListXML) for usage.
+
+### `jsToAsciiPropertyList`
+
+Accepts JavaScript or JSON object with string, number, array, Uint8Arrays, or objects and converts to an old-style ASCII property list.
+
+See [the API](https://rawgit.com/tarranjones/macOS-defaults/master/docs/jsdoc/macos-defaults/1.0.1/module-MacOSDefaults.html#.jsToAsciiPropertyList) for usage.
+
+### `parseFindResults`
+
+Accepts a string in the non-exclusively-Property-List results format returned by
+`defaults find` along with a `json` option on whether to return JSON arrays
+instead of `Uint8Array`s.
+
+See [the API](https://rawgit.com/tarranjones/macOS-defaults/master/docs/jsdoc/macos-defaults/1.0.1/module-MacOSDefaults.html#.parseFindResults) for usage.
+
+## Other files
+
+### `PlistParser.js`
+
+```js
+const parser = require('macOS-defaults/PlistParser')
+```
+
+The class used internally by `MacOSDefaults` to parse old-style ASCII property lists.
+
+See [the API](https://rawgit.com/tarranjones/macOS-defaults/master/docs/jsdoc/macos-defaults/1.0.1/module-PlistParser-PlistParser.html) for usage.
+
+### `getParsedIORegInfo.js`
+
+```js
+const getParsedIORegInfo = require('macOS-defaults/getParsedIORegInfo')
+```
+
+Allows parsing results from `ioreg -rd1 -c IOPlatformExpertDevice` (used in
+[test/test.js](./test/test.js) to get the user's host).
+
+See [the API](https://rawgit.com/tarranjones/macOS-defaults/master/docs/jsdoc/macos-defaults/1.0.1/module-getParsedIORegInfo.html) for usage.
+
+## Documentation
+
+See [the API](https://rawgit.com/tarranjones/macOS-defaults/master/docs/jsdoc/macos-defaults/1.0.1/index.html).
+
+For extended examples, see [test/test.js](./test/test.js)
+
+## Comparison to `defaults` API
+
+Closely mirrors Mac's `defaults` with a few slight API changes.
+
+1. To pass a key-value, to `write`, you must either supply an object with `key` and `value` for the first argument or supply a two-item array in the first or second argument (allowing two string arguments could be confusable with other parameters). The "value" must either be a string (in which case the type is a string) or a two-item array of one of the allowable types and the value (as JSON).
+1. To `delete` all domains, you must supply an object with `deleteAll` (avoiding a foot-gun).
+1. While `read-type` is provided as a method, the CamelCased `readType` is preferred. The documented `old_key` and `new_key` `rename` arguments are also preferred as `oldKey` and `newKey`.
+1. For `import`, we allow a stream as well as `-`.
+1. For the "synchronous" method of `import`, passing in `process.stdin` does not work (we can't modify it before or after it is passed). Since we wish to allow a string argument, we have to wait asynchronously to first convert it to a string before passing it into the shell. So our API actually ends up returning a `Promise` here, though we are calling the synchronous method.
+In its place one may pass in a `Stream` that can be converted into a string or an object with
+an `input` property set to a string.
 
 ## Resources
 
-https://www.freebsd.org/cgi/man.cgi?query=defaults&apropos=0&sektion=0&manpath=FreeBSD+11.0-RELEASE+and+Ports&arch=default&format=html
-http://man.cx/defaults(1)
-https://developer.apple.com/legacy/library/documentation/Darwin/Reference/ManPages/man1/defaults.1.html
+- <https://www.freebsd.org/cgi/man.cgi?query=defaults&apropos=0&sektion=0&manpath=FreeBSD+11.0-RELEASE+and+Ports&arch=default&format=html>
+- <http://man.cx/defaults(1)>
+- <https://developer.apple.com/legacy/library/documentation/Darwin/Reference/ManPages/man1/defaults.1.html>
+
 ```
 $ man defaults
 

@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>key1</key>
+	<string>a string</string>
+	<key>key10</key>
+	<date>1919-01-01T01:01:00Z</date>
+	<key>key11</key>
+	<date>1919-01-01T01:01:00Z</date>
+	<key>key12</key>
+	<date>1919-01-01T01:01:00Z</date>
+	<key>key13</key>
+	<date>2019-01-01T01:01:00Z</date>
+	<key>key14</key>
+	<array>
+		<string>a</string>
+		<integer>3</integer>
+		<true/>
+		<dict/>
+		<array/>
+	</array>
+	<key>key15</key>
+	<dict>
+		<key>a</key>
+		<string>1</string>
+		<key>b</key>
+		<integer>2</integer>
+		<key>z</key>
+		<integer>78</integer>
+	</dict>
+	<key>key16</key>
+	<dict/>
+	<key>key17</key>
+	<array/>
+	<key>key2</key>
+	<string>&amp;a'"&lt;&gt;</string>
+	<key>key3</key>
+	<data>
+	A08=
+	</data>
+	<key>key4</key>
+	<data>
+	ASOrze8=
+	</data>
+	<key>key5</key>
+	<integer>30</integer>
+	<key>key6</key>
+	<real>32</real>
+	<key>key7</key>
+	<real>32.299999237060547</real>
+	<key>key8</key>
+	<true/>
+	<key>key9</key>
+	<false/>
+</dict>
+</plist>
