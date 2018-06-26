@@ -159,17 +159,29 @@ const resultXML = await mod.export({domain: 'com.apple.finder', plist: '-'});
 
 ### `jsToPropertyListXML`
 
+```js
+const {jsToPropertyListXML} = require('macOS-defaults');
+```
+
 Builds a property list XML string.
 
 See [the API](https://rawgit.com/tarranjones/macOS-defaults/master/docs/jsdoc/macos-defaults/1.0.1/module-MacOSDefaults.html#.jsToPropertyListXML) for usage.
 
 ### `jsToAsciiPropertyList`
 
+```js
+const {jsToAsciiPropertyList} = require('macOS-defaults');
+```
+
 Accepts JavaScript or JSON object with string, number, array, Uint8Arrays, or objects and converts to an old-style ASCII property list.
 
 See [the API](https://rawgit.com/tarranjones/macOS-defaults/master/docs/jsdoc/macos-defaults/1.0.1/module-MacOSDefaults.html#.jsToAsciiPropertyList) for usage.
 
 ### `parseFindResults`
+
+```js
+const {parseFindResults} = require('macOS-defaults');
+```
 
 Accepts a string in the non-exclusively-Property-List results format returned by
 `defaults find` along with a `json` option on whether to return JSON arrays
