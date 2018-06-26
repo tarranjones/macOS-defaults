@@ -230,6 +230,32 @@ Closely mirrors Mac's `defaults` with a few slight API changes.
 In its place one may pass in a `Stream` that can be converted into a string or an object with
 an `input` property set to a string.
 
+## Domains and hosts
+
+Note that the domain can also be expressed as an object with `app` or `g`
+properties.
+
+```js
+// App domain
+mod.write({app: 'MyAppID'}, 'key1');
+
+// Global domain
+mod.write({g: true}, 'key1');
+```
+
+The host can be expressed as a string, or an object with `currentHost`
+(or `host`).
+
+```js
+// Named host:
+mod.write('com.example.subdomain', '{plist=1;}', '<aMacIDForHost>');
+// OR:
+mod.write('com.example.subdomain', '{plist=1;}', {host: '<aMacIDForHost>'});
+
+// Current host
+mod.write('com.example.subdomain', '{plist=1;}', {currentHost: true});
+```
+
 ## Resources
 
 - <https://www.freebsd.org/cgi/man.cgi?query=defaults&apropos=0&sektion=0&manpath=FreeBSD+11.0-RELEASE+and+Ports&arch=default&format=html>
