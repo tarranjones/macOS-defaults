@@ -39,7 +39,7 @@ const fullTypeList = allowedTypes.concat(typeAliasNames);
 * @returns {string} The escaped and quoted string
 */
 function quoteAndEscapeDoubleQuotes (val) {
-  return '"' + val.replace(/"/g, '\\"') + '"';
+  return '"' + val.replace(/\\/g, '\\\\').replace(/"/g, '\\"') + '"';
 }
 /**
 * Escapes any XML apostrophes
@@ -479,14 +479,13 @@ function checkHostAndDomain ({domain, host, methodName, optionalDomain}) {
     }
   }
   if (!globalDomain && !app) {
-    if (!domain) {
-      if (!optionalDomain) {
-        throw new TypeError('A domain is not optional for ' + methodName);
-      }
-    } else if (typeof domain !== 'string' || !domain) {
+    if (domain === '' || (domain && typeof domain !== 'string')) {
       throw new TypeError(
         'If a global or app domain is not specified, a non-empty string must be supplied to ' + methodName
       );
+    }
+    if (!domain && !optionalDomain) {
+      throw new TypeError('A domain is not optional for ' + methodName);
     }
   }
   const {currentHost, anyHost, hostString} = checkHost({host, methodName});
